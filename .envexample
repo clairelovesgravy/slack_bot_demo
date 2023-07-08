@@ -1,0 +1,3 @@
+OPENAI_API_KEY = "repalce with your own api key"
+SLACK_BOT_TOKEN = "replace with your own bot token"
+SIGNING_SECRET = "replace with your own SIGNING_SECRET"
