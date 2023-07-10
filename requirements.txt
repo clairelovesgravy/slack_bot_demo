@@ -4,3 +4,5 @@ python-dotenv
 slack-sdk 
 slack-bolt 
 Flask
+gunicorn
+urllib3<2
