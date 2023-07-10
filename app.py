@@ -42,7 +42,11 @@ def verify_slack_request():
     if abs(current_timestamp - int(timestamp)) > 60 * 5:    
         return False
     
-
+    return signature_verifier.is_valid(
+        body=request.get_data().decode("utf-8"),
+          timestamp=timestamp, 
+          signature=signature,
+          )
 
 
 CHATAI = ChatOpenAI(temperature=0.9,model_name='gpt-3.5-turbo',max_tokens=1500, openai_api_key=openai_api_key)

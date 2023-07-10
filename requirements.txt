@@ -3,6 +3,6 @@ openai
 python-dotenv
 slack-sdk 
 slack-bolt 
-Flask
+flask
 gunicorn
 urllib3<2
