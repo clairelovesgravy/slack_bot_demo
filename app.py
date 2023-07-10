@@ -1,12 +1,15 @@
 import os
-from flask import Flask, request
+from flask import Flask, request, abort
 from dotenv import load_dotenv, find_dotenv
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
+from slack_sdk.signature import SignatureVerifier
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains import ConversationChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.prompt import PromptTemplate
+from functools import wraps
+import time
 
 # Load the environment variables
 load_dotenv(find_dotenv())
@@ -19,6 +22,28 @@ app = App(token=slack_bot_token, signing_secret=signing_secret)
 
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
+
+signature_verifier = SignatureVerifier(signing_secret=signing_secret)
+
+def require_slack_verification(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not verify_slack_request():
+            abort(403) 
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def verify_slack_request():
+    timestamp = request.headers.get("X-Slack-Request-Timestamp", "")
+    signature = request.headers.get("X-Slack-Signature", "")
+
+    current_timestamp = int(time.time())
+    if abs(current_timestamp - int(timestamp)) > 60 * 5:    
+        return False
+    
+
+
 
 CHATAI = ChatOpenAI(temperature=0.9,model_name='gpt-3.5-turbo',max_tokens=1500, openai_api_key=openai_api_key)
 
@@ -60,8 +85,9 @@ def handle_message_events(body, say, logger):
     say(response)
 
 @flask_app.route("/slack/events", methods=["POST"])
+@require_slack_verification
 def slack_events():
     return handler.handle(request)
 
 if __name__ == "__main__":
-    flask_app.run(port=5001)
+    flask_app.run(host='0.0.0.0', port=8000)
