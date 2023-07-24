@@ -49,7 +49,7 @@ def verify_slack_request():
           )
 
 
-CHATAI = ChatOpenAI(temperature=0.9,model_name='gpt-3.5-turbo',max_tokens=1500, openai_api_key=openai_api_key)
+CHATAI = ChatOpenAI(temperature=0.9,model_name='gpt-4-0613',max_tokens=1500, openai_api_key=openai_api_key)
 
 template = """Assistant is a large language model trained by OpenAI.
 
